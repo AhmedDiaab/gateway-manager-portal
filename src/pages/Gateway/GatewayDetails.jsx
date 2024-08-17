@@ -16,6 +16,7 @@ import { useGateway } from '../../hooks/Gateway/useGateway'; // Ensure correct h
 import { useDevices } from '../../hooks/Device/useDevices';
 import { useMutation, useQueryClient } from 'react-query';
 import { deleteDevice } from '../../hooks/Device/DeleteDevice'; // Ensure correct function import
+import { toggleDeviceStatus } from '../../hooks/Device/useToggleDeviceStatus';
 
 const GatewayDetailsPage = () => {
     const { serial } = useParams();
@@ -36,6 +37,24 @@ const GatewayDetailsPage = () => {
 
     const handleDelete = (uid) => {
         mutation.mutate(uid);
+    };
+
+    const statusMutation = useMutation(
+        ({ uid, newStatus }) => toggleDeviceStatus(serial, uid, newStatus),
+        {
+            onSuccess: (updatedDevice) => {
+                queryClient.setQueryData(['devices', serial], (oldDevices) => {
+                    return oldDevices.map((device) =>
+                        device.uid === updatedDevice.uid ? updatedDevice : device
+                    );
+                });
+            },
+        }
+    );
+
+    const handleToggleStatus = (uid, currentStatus) => {
+        const newStatus = currentStatus === 'online' ? 'offline' : 'online';
+        statusMutation.mutate({ uid, newStatus });
     };
 
     if (isGatewayLoading || isDevicesLoading) return <Spinner size="xl" />;
@@ -63,6 +82,16 @@ const GatewayDetailsPage = () => {
                         <Text><strong>Vendor:</strong> {device.vendor}</Text>
                         <Text><strong>Status:</strong> {device.status}</Text>
                         <Text><strong>Created At:</strong> {new Date(device.createdAt).toLocaleString()}</Text>
+                        <Button
+                            mt="2"
+                            size="sm"
+                            mr={2}
+                            colorScheme="teal"
+                            onClick={() => handleToggleStatus(device._id, device.status)}
+                            isLoading={statusMutation.isLoading && statusMutation.variables.uid === device.uid}
+                        >
+                            Toggle Status
+                        </Button>
                         <Button
                             mt="2"
                             size="sm"
