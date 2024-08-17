@@ -1,49 +1,55 @@
 import React, { useState } from 'react';
 import { useGateways } from '../../hooks/Gateway/listGateways';
 import { Link } from 'react-router-dom';
-import styles from './GatewayList.module.css';
+import { Box, Heading, Text, List, ListItem, Button, Spinner, Alert, AlertIcon } from '@chakra-ui/react';
 
 const GatewayListPage = () => {
     const [page, setPage] = useState(1);
     const limit = 10; // Number of items per page
     const { data: gateways, isLoading, isError, error } = useGateways(page, limit);
 
-    if (isLoading) return <p>Loading...</p>;
-    if (isError) return <p>Error: {error.message}</p>;
+    if (isLoading) return <Spinner size="xl" />;
+    if (isError) return (
+        <Alert status="error">
+            <AlertIcon />
+            Error: {error.message}
+        </Alert>
+    );
 
     const handleNextPage = () => setPage((prev) => prev + 1);
     const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 1));
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Gateways List</h1>
-            <Link to="/gateways/add" className={styles.addButton}>Add New Gateway</Link>
-            <ul className={styles.list}>
+        <Box p="5">
+            <Heading mb="4">Gateways List</Heading>
+            <Link to="/gateways/add">
+                <Button colorScheme="teal" mb="4">Add New Gateway</Button>
+            </Link>
+            <List spacing="3">
                 {gateways.gateways.map((gateway) => (
-                    <li key={gateway.serial} className={styles.item}>
-                        <p><strong>Name:</strong> {gateway.name}</p>
-                        <p><strong>Serial:</strong> {gateway.serial}</p>
-                        <p><strong>Address:</strong> {gateway.address}</p>
-                    </li>
+                    <ListItem key={gateway.serial} p="3" borderWidth="1px" borderRadius="md">
+                        <Text><strong>Name:</strong> {gateway.name}</Text>
+                        <Text><strong>Serial:</strong> {gateway.serial}</Text>
+                        <Text><strong>Address:</strong> {gateway.address}</Text>
+                    </ListItem>
                 ))}
-            </ul>
-            <div className={styles.pagination}>
-                <button
+            </List>
+            <Box mt="4" textAlign="center">
+                <Button
                     onClick={handlePreviousPage}
                     disabled={page === 1}
-                    className={styles.pageButton}
+                    mr="2"
                 >
                     Previous
-                </button>
-                <span>Page {page}</span>
-                <button
+                </Button>
+                <Text as="span" mx="2">Page {page}</Text>
+                <Button
                     onClick={handleNextPage}
-                    className={styles.pageButton}
                 >
                     Next
-                </button>
-            </div>
-        </div>
+                </Button>
+            </Box>
+        </Box>
     );
 };
 
