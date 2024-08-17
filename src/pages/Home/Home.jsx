@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import styles from './Home.module.css'; // Import the CSS module
+import { Box, Heading, Text } from '@chakra-ui/react'; // Import Chakra UI components
 
 const HomePage = () => {
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Home Page</h1>
-      <Link to="/gateways" className={styles.link}>Go to Gateways</Link>
-    </div>
+    <Box textAlign="center" py="5">
+      <Heading mb="4">Home Page</Heading>
+      <Text fontSize="lg">
+        <Link to="/gateways" style={{ textDecoration: 'none', color: 'teal.500' }}>
+          Go to Gateways
+        </Link>
+      </Text>
+    </Box>
   );
 };
 
