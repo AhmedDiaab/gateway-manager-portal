@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGateways } from '../../hooks/Gateway/listGateways';
 import { Link } from 'react-router-dom';
 import styles from './GatewayList.module.css';
 
 const GatewayListPage = () => {
-    const { data: gateways, isLoading, isError, error } = useGateways();
+    const [page, setPage] = useState(1);
+    const limit = 10; // Number of items per page
+    const { data: gateways, isLoading, isError, error } = useGateways(page, limit);
 
     if (isLoading) return <p>Loading...</p>;
     if (isError) return <p>Error: {error.message}</p>;
+
+    const handleNextPage = () => setPage((prev) => prev + 1);
+    const handlePreviousPage = () => setPage((prev) => Math.max(prev - 1, 1));
 
     return (
         <div className={styles.container}>
@@ -22,6 +27,22 @@ const GatewayListPage = () => {
                     </li>
                 ))}
             </ul>
+            <div className={styles.pagination}>
+                <button
+                    onClick={handlePreviousPage}
+                    disabled={page === 1}
+                    className={styles.pageButton}
+                >
+                    Previous
+                </button>
+                <span>Page {page}</span>
+                <button
+                    onClick={handleNextPage}
+                    className={styles.pageButton}
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 };

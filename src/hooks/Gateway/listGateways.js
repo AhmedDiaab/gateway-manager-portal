@@ -9,5 +9,5 @@ const listGateways = async (limit = 10, page = 1) => {
 };
 
 export const useGateways = (page, limit) => {
-  return useQuery(['gateways', page, limit], () => fetchGateways(page, limit));
+  return useQuery(['gateways', page, limit], () => listGateways(limit, page));
 };

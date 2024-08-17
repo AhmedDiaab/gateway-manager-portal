@@ -1,10 +1,9 @@
 .container {
     padding: 20px;
-    font-family: Arial, sans-serif;
 }
 
 .title {
-    color: #333;
+    font-size: 2em;
     margin-bottom: 20px;
 }
 
@@ -12,15 +11,10 @@
     display: inline-block;
     margin-bottom: 20px;
     padding: 10px 20px;
-    color: #fff;
     background-color: #007bff;
+    color: white;
     text-decoration: none;
-    font-weight: bold;
     border-radius: 5px;
-}
-
-.addButton:hover {
-    background-color: #0056b3;
 }
 
 .list {
@@ -29,9 +23,30 @@
 }
 
 .item {
-    background-color: #fff;
+    margin-bottom: 10px;
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
+}
+
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pageButton {
+    padding: 10px 20px;
+    margin: 0 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pageButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
