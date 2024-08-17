@@ -12,10 +12,11 @@ import {
     Button,
     Divider,
 } from '@chakra-ui/react';
-import { useGateway } from '../../hooks/Gateway/useGateway'; // Ensure correct hook import
+import { useGateway } from '../../hooks/Gateway/useGateway';
 import { useDevices } from '../../hooks/Device/useDevices';
 import { useMutation, useQueryClient } from 'react-query';
-import { deleteDevice } from '../../hooks/Device/DeleteDevice'; // Ensure correct function import
+import { deleteDevice } from '../../hooks/Device/DeleteDevice';
+import { addDevice } from '../../hooks/Device/AddDevice';
 import { toggleDeviceStatus } from '../../hooks/Device/useToggleDeviceStatus';
 
 const GatewayDetailsPage = () => {
@@ -25,32 +26,56 @@ const GatewayDetailsPage = () => {
     const { data: gateway, isLoading: isGatewayLoading, isError: isGatewayError, error: gatewayError } = useGateway(serial);
     const { data: devices, isLoading: isDevicesLoading, isError: isDevicesError, error: devicesError } = useDevices(serial);
 
-    const mutation = useMutation(
+    const deleteMutation = useMutation(
         (uid) => deleteDevice(serial, uid),
         {
             onSuccess: () => {
-                // Invalidate devices query to update the list
+                queryClient.invalidateQueries(['devices', serial]);
+            },
+        }
+    );
+
+    const addMutation = useMutation(
+        (newDevice) => addDevice(serial, newDevice),
+        {
+            onSuccess: (newDevice) => {
+                queryClient.setQueryData(['devices', serial], (oldDevices) => [...oldDevices, newDevice]);
+            },
+        }
+    );
+
+    const statusMutation = useMutation(
+        ({ uid, newStatus }) => toggleDeviceStatus(serial, uid, newStatus),
+        {
+            onMutate: async ({ uid, newStatus }) => {
+                await queryClient.cancelQueries(['devices', serial]);
+
+                const previousDevices = queryClient.getQueryData(['devices', serial]);
+
+                queryClient.setQueryData(['devices', serial], (oldDevices) =>
+                    oldDevices.map((device) =>
+                        device.uid === uid ? { ...device, status: newStatus } : device
+                    )
+                );
+
+                return { previousDevices };
+            },
+            onError: (err, { uid, newStatus }, context) => {
+                queryClient.setQueryData(['devices', serial], context.previousDevices);
+            },
+            onSettled: () => {
                 queryClient.invalidateQueries(['devices', serial]);
             },
         }
     );
 
     const handleDelete = (uid) => {
-        mutation.mutate(uid);
+        deleteMutation.mutate(uid);
     };
 
-    const statusMutation = useMutation(
-        ({ uid, newStatus }) => toggleDeviceStatus(serial, uid, newStatus),
-        {
-            onSuccess: (updatedDevice) => {
-                queryClient.setQueryData(['devices', serial], (oldDevices) => {
-                    return oldDevices.map((device) =>
-                        device.uid === updatedDevice.uid ? updatedDevice : device
-                    );
-                });
-            },
-        }
-    );
+    const handleAddDevice = async (newDevice) => {
+        await addMutation.mutateAsync(newDevice);
+    };
 
     const handleToggleStatus = (uid, currentStatus) => {
         const newStatus = currentStatus === 'online' ? 'offline' : 'online';
@@ -84,8 +109,8 @@ const GatewayDetailsPage = () => {
                         <Text><strong>Created At:</strong> {new Date(device.createdAt).toLocaleString()}</Text>
                         <Button
                             mt="2"
-                            size="sm"
                             mr={2}
+                            size="sm"
                             colorScheme="teal"
                             onClick={() => handleToggleStatus(device._id, device.status)}
                             isLoading={statusMutation.isLoading && statusMutation.variables.uid === device.uid}
@@ -96,8 +121,8 @@ const GatewayDetailsPage = () => {
                             mt="2"
                             size="sm"
                             colorScheme="red"
-                            onClick={() => handleDelete(device._id)}
-                            isLoading={mutation.isLoading && mutation.variables === device.uid}
+                            onClick={() => handleDelete(device.uid)}
+                            isLoading={deleteMutation.isLoading && deleteMutation.variables === device.uid}
                         >
                             Delete Device
                         </Button>
@@ -106,7 +131,7 @@ const GatewayDetailsPage = () => {
             </List>
 
             <Link to={`/gateways/${serial}/add-device`}>
-                <Button colorScheme="teal" mt="4">
+                <Button colorScheme="teal" mt="4" onClick={() => handleAddDevice({ /* pass new device data here */ })}>
                     Add Device
                 </Button>
             </Link>
