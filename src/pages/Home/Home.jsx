@@ -6,7 +6,7 @@ const HomePage = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Home Page</h1>
-      <Link to="/todos" className={styles.link}>Go to Todos</Link>
+      <Link to="/gateways" className={styles.link}>Go to Gateways</Link>
     </div>
   );
 };
