@@ -58,7 +58,7 @@ const GatewayDetailsPage = () => {
             <Heading size="md" mb="2">Devices</Heading>
             <List spacing="3">
                 {devices.map((device) => (
-                    <ListItem key={device.uid} p="3" borderWidth="1px" borderRadius="md">
+                    <ListItem key={device._id} p="3" borderWidth="1px" borderRadius="md">
                         <Text><strong>UID:</strong> {device.uid}</Text>
                         <Text><strong>Vendor:</strong> {device.vendor}</Text>
                         <Text><strong>Status:</strong> {device.status}</Text>
@@ -67,7 +67,7 @@ const GatewayDetailsPage = () => {
                             mt="2"
                             size="sm"
                             colorScheme="red"
-                            onClick={() => handleDelete(device.uid)}
+                            onClick={() => handleDelete(device._id)}
                             isLoading={mutation.isLoading && mutation.variables === device.uid}
                         >
                             Delete Device

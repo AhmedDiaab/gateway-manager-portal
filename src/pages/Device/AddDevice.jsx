@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Heading, FormControl, FormLabel, Input, Select, Button, useToast } from '@chakra-ui/react';
-import { useMutation } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import { addDevice } from '../../hooks/Device/AddDevice';
 
 const AddDevicePage = () => {
+    const queryClient = useQueryClient();
     const { serial } = useParams();
     const navigate = useNavigate();
     const toast = useToast();
@@ -35,6 +36,22 @@ const AddDevicePage = () => {
         },
     });
 
+    const addMutation = useMutation(
+        (newDevice) => addDevice(serial, newDevice), // Assuming addDevice is defined similarly to deleteDevice
+        {
+            onSuccess: (newDevice) => {
+                // Optimistically update the devices list to include the new device
+                queryClient.setQueryData(['devices', serial], (oldDevices) => {
+                    return [...oldDevices, newDevice];
+                });
+            },
+        }
+    );
+
+    const handleAddDevice = async (newDevice) => {
+        await addMutation.mutateAsync(newDevice);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const newDevice = {
@@ -42,6 +59,7 @@ const AddDevicePage = () => {
             vendor,
             status,
         };
+        handleAddDevice(newDevice);
         mutation.mutate(newDevice);
     };
 
