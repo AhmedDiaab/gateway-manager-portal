@@ -7,6 +7,7 @@ import { Route, Routes } from 'react-router-dom';
 const HomePage = lazy(() => import('../pages/Home/Home'));
 const GatewayList = lazy(() => import('../pages/Gateway/GatewayList'));
 const AddGateway = lazy(() => import('../pages/Gateway/AddGateway'));
+const GatewayDetails = lazy(() => import('../pages/Gateway/GatewayDetails'));
 
 const AppRoutes = () => {
     return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/gateways" element={<GatewayList />} />
                 <Route path="/gateways/add" element={<AddGateway />} />
+                <Route path="/gateways/:serial" element={<GatewayDetails />} />
             </Routes>
         </Suspense>
     );
