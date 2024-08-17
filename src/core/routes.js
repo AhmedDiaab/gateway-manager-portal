@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 
 
 // lazy load pages
-const HomePage = lazy(() => import('../pages/Home'));
+const HomePage = lazy(() => import('../pages/Home/Home'));
 
 const AppRoutes = () => {
     return (
