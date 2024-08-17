@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
     Box,
     Heading,
@@ -22,6 +22,7 @@ import { toggleDeviceStatus } from '../../hooks/Device/useToggleDeviceStatus';
 const GatewayDetailsPage = () => {
     const { serial } = useParams();
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const { data: gateway, isLoading: isGatewayLoading, isError: isGatewayError, error: gatewayError } = useGateway(serial);
     const { data: devices, isLoading: isDevicesLoading, isError: isDevicesError, error: devicesError } = useDevices(serial);
@@ -35,14 +36,14 @@ const GatewayDetailsPage = () => {
         }
     );
 
-    const addMutation = useMutation(
-        (newDevice) => addDevice(serial, newDevice),
-        {
-            onSuccess: (newDevice) => {
-                queryClient.setQueryData(['devices', serial], (oldDevices) => [...oldDevices, newDevice]);
-            },
-        }
-    );
+    // const addMutation = useMutation(
+    //     (newDevice) => addDevice(serial, newDevice),
+    //     {
+    //         onSuccess: (newDevice) => {
+    //             queryClient.setQueryData(['devices', serial], (oldDevices) => [...oldDevices, newDevice]);
+    //         },
+    //     }
+    // );
 
     const statusMutation = useMutation(
         ({ uid, newStatus }) => toggleDeviceStatus(serial, uid, newStatus),
@@ -73,9 +74,9 @@ const GatewayDetailsPage = () => {
         deleteMutation.mutate(uid);
     };
 
-    const handleAddDevice = async (newDevice) => {
-        await addMutation.mutateAsync(newDevice);
-    };
+    // const handleAddDevice = async (newDevice) => {
+    //     await addMutation.mutateAsync(newDevice);
+    // };
 
     const handleToggleStatus = (uid, currentStatus) => {
         const newStatus = currentStatus === 'online' ? 'offline' : 'online';
@@ -131,7 +132,7 @@ const GatewayDetailsPage = () => {
             </List>
 
             <Link to={`/gateways/${serial}/add-device`}>
-                <Button colorScheme="teal" mt="4" onClick={() => handleAddDevice({ /* pass new device data here */ })}>
+                <Button colorScheme="teal" mt="4" onClick={() => navigate(`/gateways/${serial}/add-device`)}>
                     Add Device
                 </Button>
             </Link>
