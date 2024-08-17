@@ -16,7 +16,6 @@ import { useGateway } from '../../hooks/Gateway/useGateway';
 import { useDevices } from '../../hooks/Device/useDevices';
 import { useMutation, useQueryClient } from 'react-query';
 import { deleteDevice } from '../../hooks/Device/DeleteDevice';
-import { addDevice } from '../../hooks/Device/AddDevice';
 import { toggleDeviceStatus } from '../../hooks/Device/useToggleDeviceStatus';
 
 const GatewayDetailsPage = () => {
